@@ -893,7 +893,7 @@ def affineRegistration(iType, rCP, iCP, iImage):
         XY[:3,:3] = sub_matrix
         XY[3:,3:] = sub_matrix
 
-        UV = np.array([ux,uy,u,vx,v]).reshape(-1,1)
+        UV = np.array([ux,uy,u,vx,vy,v]).reshape(-1,1)
 
         if np.linalg.det(XY) !=0:
             oT_vec = np.linalg.inv(XY) @ UV
@@ -946,16 +946,18 @@ def computeError(rCP, iCP, oCP, rImage, iImage, oImage, iArea):
     R_2 = ((rCP - oCP)**2).sum()/K
     R2 = [R_1, R_2]
 
-    J, I = iImage.shape
-    MSE_1 = 0
-    MSE_2 = 0
-    for x in range(iArea[0],iArea[0]+iArea[2],1):
-        for y in range(iArea[1],iArea[1]+iArea[3],1):
+    J = iArea[3]
+    I = iArea[2]
+    MSE_1 = float(0)
+    MSE_2 = float(0)
+    for x in range(iArea[0],iArea[0]+iArea[2]):
+        for y in range(iArea[1],iArea[1]+iArea[3]):
             MSE_1 = MSE_1 + (rImage[y,x] - iImage[y,x])**2
-            if oImage[y,x] > 0:
+            if oImage[y,x] != 0:
                 MSE_2 = MSE_2 + (rImage[y,x] - oImage[y,x])**2
-    MSE_1 = MSE_1/(I*J)
-    MSE_2 = MSE_2/(I*J)
+
+    MSE_1 = round(MSE_1/(I*J),2)
+    MSE_2 = round(MSE_2/(I*J),2)
     MSE = [MSE_1, MSE_2]
 
     return R2, MSE
